@@ -10,9 +10,15 @@ import 'rxjs/add/operator/map';
 */
 @Injectable()
 export class LoginProvider {
+  url;
 
   constructor(public http: Http) {
     console.log('Hello LoginProvider Provider');
+    this.url = "http://bamautomotive.000webhostapp.com/users.php?user=";
+
   }
 
+  getUserdetails(user, pass) {
+    return this.http.get(this.url+user+"&pass="+pass).map(response => response).map(res => res.json());
+  }
 }

@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
-import { Http } from '@angular/http';
+import { TabsPage } from '../tabs/tabs';
+import { LoginProvider } from '../../providers/login/login';
+import { AlertController } from 'ionic-angular';
 
 @Component({
   selector: 'page-home',
@@ -9,22 +11,35 @@ import { Http } from '@angular/http';
 export class HomePage {
   user:String;
   pass:String;
-  userdetails : {
-    id:String,
-    name:String,
-    user:String,
-    pass:String,
-    auth:String
-  }
   url;
 
-  constructor(public navCtrl: NavController, private http:Http) {
-    this.url = "http://bamautomotive.000webhostapp.com/users.php?";
+  constructor(public navCtrl: NavController,
+              private loginProv: LoginProvider,
+              private alertCtrl: AlertController) {
+    this.url = "http://bamautomotive.000webhostapp.com/users.php?user=ken&pass=123";
   }
 
   sendDetails() {
-    this.http.get(this.url+"user=ken"+"&pass=123").map(response => response.json())
-            .subscribe(result => this.userdetails = result.json());
-    console.log(this.userdetails);
+    if(this.user == "" || this.pass == "") {
+      this.showAlert('Empty Fields!', 'Fields should not be empty.');
+    } else {
+      this.loginProv.getUserdetails(this.user, this.pass).subscribe(userdetails => {
+        
+        if(userdetails.user[0].auth == "1") {
+          this.navCtrl.push(TabsPage);
+        } else {
+          this.showAlert('No User Found!', 'User is not yet signed up!');
+        }
+      });
+    }
+  }
+
+  showAlert(title, message) {
+    let alert = this.alertCtrl.create({
+      title: title,
+      subTitle: message,
+      buttons: ['OK']
+    });
+    alert.present();
   }
 }
